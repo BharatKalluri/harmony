@@ -1,7 +1,7 @@
 # Harmony
  > A tool to sync shell history across system
 
-Note: This tool only supports ZSH for now. Bash support will be added soon!
+Note: This tool only supports bash and ZSH for now.
 
 ### Installation
 
@@ -25,6 +25,11 @@ $ cat ~/.config/harmony/config
 GITHUB_TOKEN=<your github token>
 SHELL_HISTORY_PATH=/Users/bharatkalluri/.zsh_history
 SHELL_TYPE=zsh
+```
+
+If you use bash as your primary shell, run this so that timestamps are also logged in bash history
+```shell script
+echo "HISTTIMEFORMAT=\"%s\"" >> ~/.bashrc
 ```
 
 > Instructions for how to get a github token can be found
