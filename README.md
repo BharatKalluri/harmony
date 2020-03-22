@@ -8,7 +8,7 @@ Note: This tool only supports ZSH for now. Bash support will be added soon!
 If you have go language installed on your system
 
 ```shell script
-go get https://github.com/BharatKalluri/harmony
+go get github.com/BharatKalluri/harmony
 ```
 
 create a directory to store harmony config
@@ -41,4 +41,4 @@ To sync your history, just run
 harmony
 ```
 
-and it should automagically make sure all your shell history is in sync!
+and it should auto magically make sure all your shell history is in sync!

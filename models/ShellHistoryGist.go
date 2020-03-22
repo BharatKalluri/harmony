@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 	"encoding/base64"
-	config "github.com/bharatkalluri/harmony/config"
+	"github.com/bharatkalluri/harmony/config"
 	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
 )
@@ -50,6 +50,7 @@ func (s ShellHistoryGist) CreateShellHistoryGist(shellHistory ShellHistory) erro
 	if err != nil {
 		return err
 	}
+	return nil
 }
 
 func (s ShellHistoryGist) UpdateShellHistoryGist(updatedHistoryContents []byte) error {
