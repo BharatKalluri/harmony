@@ -1,28 +1,43 @@
 package models
 
 import (
-	"io/ioutil"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
-type ZSHShell struct {
-	HistoryFilePath string
-}
+type ZSHShell struct{}
 
-func (z ZSHShell) GetShellHistoryInBytes() ([]byte, error) {
-	data, err := ioutil.ReadFile(z.HistoryFilePath)
-	return data, err
-}
-
-func (z ZSHShell) GetShellHistory() (ShellHistory, error) {
-	data, err := z.GetShellHistoryInBytes()
+func (z ZSHShell) DecodeHistoryItem(encodedHistoryString string) (HistoryItem, error) {
+	splitOnSemiColon := strings.Split(encodedHistoryString, ";")
+	cmdInHistory := splitOnSemiColon[len(splitOnSemiColon)-1]
+	splitOnColon := strings.Split(encodedHistoryString, ":")
+	timeStampStr := splitOnColon[1]
+	timeStamp, err := strconv.Atoi(strings.TrimSpace(timeStampStr))
 	if err != nil {
-		return ShellHistory{}, err
+		return HistoryItem{}, err
 	}
-	return ShellHistory{}.GetShellHistoryFromBytes(data), nil
+	return HistoryItem{
+		TimeStamp: timeStamp,
+		Command:   cmdInHistory,
+	}, nil
 }
 
-func (z ZSHShell) WriteShellHistory(shellHistory ShellHistory) error {
-	shellHistoryStr := shellHistory.ConvertToString()
-	err := ioutil.WriteFile(z.HistoryFilePath, []byte(shellHistoryStr), 0644)
-	return err
+func (z ZSHShell) EncodeHistoryItem(historyItem HistoryItem) string {
+	return fmt.Sprintf(": %d:0;%s", historyItem.TimeStamp, historyItem.Command)
+}
+
+func (z ZSHShell) GetShellHistoryFromBytes(shellHistory []byte) (ShellHistory, error) {
+	historyItemsStrArr := strings.Split(string(shellHistory), "\n")
+	var historyItemsArr []HistoryItem
+	for _, el := range historyItemsStrArr {
+		if len(el) > 1 {
+			historyItem, err := z.DecodeHistoryItem(el)
+			if err != nil {
+				return ShellHistory{}, err
+			}
+			historyItemsArr = append(historyItemsArr, historyItem)
+		}
+	}
+	return ShellHistory{History: historyItemsArr}, nil
 }

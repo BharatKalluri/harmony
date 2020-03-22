@@ -24,6 +24,7 @@ and create a file called config which contains the github token and shell histor
 $ cat ~/.config/harmony/config
 GITHUB_TOKEN=<your github token>
 SHELL_HISTORY_PATH=/Users/bharatkalluri/.zsh_history
+SHELL_TYPE=zsh
 ```
 
 > Instructions for how to get a github token can be found

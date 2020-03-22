@@ -8,6 +8,7 @@ import (
 type AppConfig struct {
 	GithubToken      string
 	ShellHistoryPath string
+	ShellType        string
 }
 
 func ReadAppConfig() AppConfig {
@@ -26,5 +27,9 @@ func ReadAppConfig() AppConfig {
 	if shellHistoryPath == "" {
 		panic("This program cannot function without SHELL_HISTORY_PATH in ~/.config/harmony/config !")
 	}
-	return AppConfig{GithubToken: githubToken, ShellHistoryPath: shellHistoryPath}
+	shellType := viper.GetString("SHELL_TYPE")
+	if shellType == "" {
+		panic("Need shell type to be set to either bash or zsh!")
+	}
+	return AppConfig{GithubToken: githubToken, ShellHistoryPath: shellHistoryPath, ShellType: shellType}
 }

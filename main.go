@@ -4,20 +4,30 @@ import (
 	"fmt"
 	"github.com/bharatkalluri/harmony/config"
 	"github.com/bharatkalluri/harmony/models"
+	"strings"
 )
+
+func GetShellTypeFromStr(shellTypeStr string) models.Shell {
+	if strings.Compare(shellTypeStr, "bash") == 0 {
+		return models.BashShell{}
+	} else if strings.Compare(shellTypeStr, "zsh") == 0 {
+		return models.ZSHShell{}
+	} else {
+		panic("SHELL_TYPE needs to be either bash or zsh")
+	}
+}
 
 func main() {
 	appConfig := config.ReadAppConfig()
 
-	zsh := models.ZSHShell{
-		HistoryFilePath: appConfig.ShellHistoryPath,
-	}
+	shell := GetShellTypeFromStr(appConfig.ShellType)
+
 	shellHistoryGist := models.NewShellHistoryGist()
 	onlineHistory, err := shellHistoryGist.GetShellHistoryFromGist()
 	if err != nil {
 		panic("Failed to retrieve history from gist")
 	}
-	localHistory, err := zsh.GetShellHistory()
+	localHistory, err := models.GetShellHistory(shell)
 	if err != nil {
 		panic("Failed to retrieve local history")
 	}
@@ -36,7 +46,7 @@ func main() {
 		fmt.Println("Successfully pushed all history")
 	} else if localHistoryLastUpdateOn == 0 {
 		// No history exists local, pull
-		err := zsh.WriteShellHistory(onlineHistory)
+		err := models.WriteShellHistory(onlineHistory, shell)
 		if err != nil {
 			panic("Pull from online history has failed!")
 		}
@@ -46,7 +56,7 @@ func main() {
 		missingHistory := onlineHistory.GetShellHistoryAfter(onlineHistory, localHistoryLastUpdateOn)
 		totalHistory := append(missingHistory, localHistory.History...)
 		// Write total history to local file
-		err := zsh.WriteShellHistory(models.ShellHistory{History: totalHistory})
+		err := models.WriteShellHistory(models.ShellHistory{History: totalHistory}, shell)
 		if err != nil {
 			panic("Failed to pull history changes")
 		}
@@ -55,7 +65,7 @@ func main() {
 		// Local history is ahead of online history, push
 		missingHistory := localHistory.GetShellHistoryAfter(localHistory, onlineHistoryLastUpdateOn)
 		totalHistory := append(missingHistory, onlineHistory.History...)
-		err = shellHistoryGist.UpdateShellHistoryGist([]byte(models.ShellHistory{History: totalHistory}.ConvertToString()))
+		err = shellHistoryGist.UpdateShellHistoryGist(models.ShellHistory{History: totalHistory})
 		if err != nil {
 			panic("Failed to push history changes")
 		}

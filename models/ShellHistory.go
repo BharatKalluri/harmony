@@ -2,7 +2,8 @@ package models
 
 import (
 	"fmt"
-	"strings"
+	"github.com/bharatkalluri/harmony/config"
+	"io/ioutil"
 )
 
 type ShellHistory struct {
@@ -19,27 +20,18 @@ func (s ShellHistory) GetShellHistoryAfter(completeShellHistory ShellHistory, ti
 	return shellHistoryAfterTimestamp
 }
 
-func (s ShellHistory) ConvertToString() string {
+func (s ShellHistory) ConvertToString(shell Shell) string {
 	var shellHistoryStr string
 	for _, el := range s.History {
-		shellHistoryStr = shellHistoryStr + fmt.Sprintf("%s\n", el.Encode())
+		shellHistoryStr = shellHistoryStr + fmt.Sprintf("%s\n", shell.EncodeHistoryItem(el))
 	}
 	return shellHistoryStr
 }
 
-func (s ShellHistory) GetShellHistoryFromBytes(shellHistory []byte) ShellHistory {
-	historyItemsStrArr := strings.Split(string(shellHistory), "\n")
-	var historyItemsArr []HistoryItem
-	for _, el := range historyItemsStrArr {
-		if len(el) > 1 {
-			historyItem, err := DecodeHistoryItem(el)
-			if err != nil {
-				return ShellHistory{}
-			}
-			historyItemsArr = append(historyItemsArr, historyItem)
-		}
-	}
-	return ShellHistory{History: historyItemsArr}
+func GetShellHistoryInBytes() ([]byte, error) {
+	appConfig := config.ReadAppConfig()
+	data, err := ioutil.ReadFile(appConfig.ShellHistoryPath)
+	return data, err
 }
 
 func (s ShellHistory) GetLatestUpdatedTime() int {
@@ -50,4 +42,23 @@ func (s ShellHistory) GetLatestUpdatedTime() int {
 		}
 	}
 	return max
+}
+
+func GetShellHistory(shell Shell) (ShellHistory, error) {
+	data, err := GetShellHistoryInBytes()
+	if err != nil {
+		return ShellHistory{}, err
+	}
+	shellHistory, err := shell.GetShellHistoryFromBytes(data)
+	if err != nil {
+		return ShellHistory{}, err
+	}
+	return shellHistory, nil
+}
+
+func WriteShellHistory(shellHistory ShellHistory, shell Shell) error {
+	shellHistoryStr := shellHistory.ConvertToString(shell)
+	appConfig := config.ReadAppConfig()
+	err := ioutil.WriteFile(appConfig.ShellHistoryPath, []byte(shellHistoryStr), 0644)
+	return err
 }
