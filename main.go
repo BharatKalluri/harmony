@@ -46,32 +46,21 @@ func main() {
 		fmt.Println("Successfully pushed all history")
 	} else if localHistoryLastUpdateOn == 0 {
 		// No history exists local, pull
-		err := models.WriteShellHistory(onlineHistory, shell)
+		err := models.WriteLocalShellHistory(onlineHistory, shell)
 		if err != nil {
 			panic("Pull from online history has failed!")
 		}
 		fmt.Println("Successfully pulled all history")
-	} else if onlineHistoryLastUpdateOn > localHistoryLastUpdateOn {
-		// Online history is ahead of the local history, pull
-		missingHistory := onlineHistory.GetShellHistoryAfter(onlineHistory, localHistoryLastUpdateOn)
-		totalHistory := append(missingHistory, localHistory.History...)
-		// Write total history to local file
-		err := models.WriteShellHistory(models.ShellHistory{History: totalHistory}, shell)
+	} else {
+		mergedShellHistory := models.MergeShellHistories(onlineHistory, localHistory)
+		err := models.WriteLocalShellHistory(mergedShellHistory, shell)
 		if err != nil {
-			panic("Failed to pull history changes")
+			panic("Writing history to local has failed!")
 		}
-		fmt.Println("Successfully pulled history")
-	} else if localHistoryLastUpdateOn > onlineHistoryLastUpdateOn {
-		// Local history is ahead of online history, push
-		missingHistory := localHistory.GetShellHistoryAfter(localHistory, onlineHistoryLastUpdateOn)
-		totalHistory := append(missingHistory, onlineHistory.History...)
-		err = shellHistoryGist.UpdateShellHistoryGist(models.ShellHistory{History: totalHistory})
+		err = shellHistoryGist.UpdateShellHistoryGist(mergedShellHistory)
 		if err != nil {
-			panic("Failed to push history changes")
+			panic("Writing history to gist has failed!")
 		}
-		fmt.Println("Successfully pushed history")
-	} else if localHistoryLastUpdateOn == onlineHistoryLastUpdateOn {
-		fmt.Println("All in sync!")
 	}
 
 }
