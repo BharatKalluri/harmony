@@ -56,9 +56,36 @@ func GetShellHistory(shell Shell) (ShellHistory, error) {
 	return shellHistory, nil
 }
 
-func WriteShellHistory(shellHistory ShellHistory, shell Shell) error {
+func WriteLocalShellHistory(shellHistory ShellHistory, shell Shell) error {
 	shellHistoryStr := shellHistory.ConvertToString(shell)
 	appConfig := config.ReadAppConfig()
 	err := ioutil.WriteFile(appConfig.ShellHistoryPath, []byte(shellHistoryStr), 0644)
 	return err
+}
+
+func addMap(a map[int]string, b map[int]string) {
+	for k, v := range b {
+		a[k] = v
+	}
+}
+
+func MergeShellHistories(shellHistoryOne ShellHistory, shellHistoryTwo ShellHistory) ShellHistory {
+	shellHistoryOneMap := make(map[int]string)
+	for _, el := range shellHistoryOne.History {
+		shellHistoryOneMap[el.TimeStamp] = el.Command
+	}
+	shellHistoryTwoMap := make(map[int]string)
+	for _, el := range shellHistoryTwo.History {
+		shellHistoryTwoMap[el.TimeStamp] = el.Command
+	}
+
+	addMap(shellHistoryOneMap, shellHistoryTwoMap)
+	var mergedShellHistory []HistoryItem
+	for k, v := range shellHistoryOneMap {
+		mergedShellHistory = append(mergedShellHistory, HistoryItem{
+			Command:   v,
+			TimeStamp: k,
+		})
+	}
+	return ShellHistory{History: mergedShellHistory}
 }
