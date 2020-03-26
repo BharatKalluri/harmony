@@ -61,6 +61,7 @@ func main() {
 		if err != nil {
 			panic("Writing history to gist has failed!")
 		}
+		fmt.Println("Sync complete!")
 	}
 
 }
