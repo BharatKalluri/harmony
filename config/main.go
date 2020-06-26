@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"os"
 )
 
 type AppConfig struct {
@@ -17,7 +18,10 @@ func ReadAppConfig() AppConfig {
 	viper.AddConfigPath("$HOME/.config/harmony")
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		fmt.Println("Hey there! I could not find a config file over at ~/.config/harmony/config")
+		fmt.Println("It just needs to have three variables, A GITHUB_TOKEN, SHELL_HISTORY_PATH and SHELL_TYPE")
+		fmt.Println("For more detailed explanation, visit https://github.com/BharatKalluri/harmony/blob/master/README.md")
+		os.Exit(0)
 	}
 	githubToken := viper.GetString("GITHUB_TOKEN")
 	if githubToken == "" {

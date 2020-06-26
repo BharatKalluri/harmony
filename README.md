@@ -1,7 +1,7 @@
 # Harmony
  > A tool to sync shell history across system. Supports bash and zsh!
 
-### Installation
+## Installation
 
 If you have go language installed on your system
 
@@ -33,8 +33,8 @@ echo "HISTTIMEFORMAT=\"%s\"" >> ~/.bashrc
 ```
 
 > Instructions for how to get a github token can be found
-> [here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line), 
-> Make sure you select the "gist" checkbox on the permissions page. 
+> [here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line),
+> Make sure you select the "gist" checkbox on the permissions page.
 
 ### Run
 
