@@ -9,6 +9,7 @@ import (
 type BashShell struct{}
 
 func (b BashShell) DecodeHistoryItem(encodedHistoryString string) (HistoryItem, error) {
+	// TODO: this is a very sensitive function and will blow up with a panic if something does not go well. Fix.
 	splitOnNewLine := strings.Split(encodedHistoryString, "\n")
 	cmdInHistory := splitOnNewLine[len(splitOnNewLine)-2]
 	timeStampStr := splitOnNewLine[0]

@@ -9,6 +9,10 @@ import (
 type ZSHShell struct{}
 
 func (z ZSHShell) DecodeHistoryItem(encodedHistoryString string) (HistoryItem, error) {
+	if !strings.Contains(encodedHistoryString, ";") {
+		fmt.Println("Invalid history line: ", encodedHistoryString)
+		return HistoryItem{}, nil
+	}
 	splitOnSemiColon := strings.Split(encodedHistoryString, ";")
 	cmdInHistory := splitOnSemiColon[len(splitOnSemiColon)-1]
 	splitOnColon := strings.Split(encodedHistoryString, ":")
