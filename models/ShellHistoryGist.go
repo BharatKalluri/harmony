@@ -3,15 +3,11 @@ package models
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"encoding/json"
 	"github.com/bharatkalluri/harmony/config"
 	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
-	"strconv"
-	"strings"
 )
-
-// TODO: This could be cleaner, rethink
 
 type ShellHistoryGist struct {
 	Context context.Context
@@ -32,24 +28,6 @@ func NewShellHistoryGist() ShellHistoryGist {
 	}
 }
 
-func (s ShellHistoryGist) encodeHistoryItemToString(item HistoryItem) string {
-	return fmt.Sprintf("%d:%s;", item.TimeStamp, item.Command)
-}
-
-func (s ShellHistoryGist) decodeHistoryItemFromString(item string) (HistoryItem, error) {
-	splitOnColon := strings.Split(item, ":")
-	timeStampStr := strings.TrimSpace(splitOnColon[0])
-	timeStamp, err := strconv.Atoi(timeStampStr)
-	if err != nil {
-		return HistoryItem{}, err
-	}
-	command := strings.TrimSpace(splitOnColon[1])
-	return HistoryItem{
-		Command:   command,
-		TimeStamp: timeStamp,
-	}, nil
-}
-
 func (s ShellHistoryGist) GetShellHistoryGistObject(content string) github.Gist {
 	shellHistoryFile := github.GistFile{
 		Filename: github.String("shell_history"),
@@ -65,32 +43,23 @@ func (s ShellHistoryGist) GetShellHistoryGistObject(content string) github.Gist 
 	return shellHistoryGist
 }
 
-func (s ShellHistoryGist) ConvertShellHistoryToStringForGist(history ShellHistory) string {
-	var shellHistoryStr string
-	for _, el := range history.History {
-		shellHistoryStr = shellHistoryStr + fmt.Sprintf("%s\n", s.encodeHistoryItemToString(el))
-	}
+func (s ShellHistoryGist) ConvertToJSONStringForGist(history ShellHistory) string {
+	shellHistoryMarshalled, _ := json.Marshal(history.History)
+	shellHistoryStr := string(shellHistoryMarshalled)
 	return shellHistoryStr
 }
 
-func (s ShellHistoryGist) GetShellHistoryFromStringForGist(shellHistoryStr string) (ShellHistory, error) {
+func (s ShellHistoryGist) GetShellHistoryFromJSONString(shellHistoryStr string) (ShellHistory, error) {
 	var shellHistoryArr []HistoryItem
-	splitShellHistoryStr := strings.Split(shellHistoryStr, ";")
-	for _, el := range splitShellHistoryStr {
-		newLineStrippedEl := strings.ReplaceAll(el, "\n", "")
-		if len(newLineStrippedEl) > 0 {
-			decodedHistoryItem, err := s.decodeHistoryItemFromString(el)
-			if err != nil {
-				return ShellHistory{}, err
-			}
-			shellHistoryArr = append(shellHistoryArr, decodedHistoryItem)
-		}
+	err := json.Unmarshal([]byte(shellHistoryStr), &shellHistoryArr)
+	if err != nil {
+		return ShellHistory{}, err
 	}
 	return ShellHistory{History: shellHistoryArr}, nil
 }
 
 func (s ShellHistoryGist) CreateShellHistoryGist(shellHistory ShellHistory) error {
-	shellHistoryStr := s.ConvertShellHistoryToStringForGist(shellHistory)
+	shellHistoryStr := s.ConvertToJSONStringForGist(shellHistory)
 	shellHistoryB64 := base64.StdEncoding.EncodeToString([]byte(shellHistoryStr))
 	shellHistoryGist := s.GetShellHistoryGistObject(shellHistoryB64)
 	_, _, err := s.Client.Gists.Create(s.Context, &shellHistoryGist)
@@ -100,12 +69,22 @@ func (s ShellHistoryGist) CreateShellHistoryGist(shellHistory ShellHistory) erro
 	return nil
 }
 
-func (s ShellHistoryGist) UpdateShellHistoryGist(shellHistory ShellHistory) error {
-	updatedHistoryContents := s.ConvertShellHistoryToStringForGist(shellHistory)
+func (s ShellHistoryGist) UpsertShellHistoryGist(shellHistory ShellHistory) error {
+	updatedHistoryContents := s.ConvertToJSONStringForGist(shellHistory)
 	shellHistoryB64 := base64.StdEncoding.EncodeToString([]byte(updatedHistoryContents))
 	shellHistoryGistDetails := s.ShellHistoryGistDetails()
 	shellHistoryGist := s.GetShellHistoryGistObject(shellHistoryB64)
-	_, _, err := s.Client.Gists.Edit(s.Context, *shellHistoryGistDetails.ID, &shellHistoryGist)
+
+	var err error
+
+	if shellHistoryGistDetails == nil {
+		err = s.CreateShellHistoryGist(shellHistory)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	_, _, err = s.Client.Gists.Edit(s.Context, *shellHistoryGistDetails.ID, &shellHistoryGist)
 	return err
 }
 
@@ -133,7 +112,7 @@ func (s ShellHistoryGist) GetShellHistoryFromGist() (ShellHistory, error) {
 	if err != nil {
 		return ShellHistory{}, err
 	}
-	shellHistory, err := s.GetShellHistoryFromStringForGist(string(decodedShellHistory))
+	shellHistory, err := s.GetShellHistoryFromJSONString(string(decodedShellHistory))
 	if err != nil {
 		return ShellHistory{}, err
 	}

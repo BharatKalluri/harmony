@@ -1,6 +1,6 @@
 package models
 
 type HistoryItem struct {
-	Command   string
-	TimeStamp int
+	Command   string `json:"command"`
+	TimeStamp int    `json:"time_stamp"`
 }
