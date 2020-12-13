@@ -9,14 +9,9 @@ If you have go language installed on your system
 go get github.com/BharatKalluri/harmony
 ```
 
-create a directory to store harmony config
+Use `harmony configure` to setup a harmony configuration
 
-```shell script
-mkdir -p ~/.config/harmony/
-```
-
-and create a file called config which contains the github token and shell history path
-, here is how a sample config file would look
+Here is how a sample config file would look
 
 ```shell script
 $ cat ~/.config/harmony/config

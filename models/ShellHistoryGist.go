@@ -14,8 +14,11 @@ type ShellHistoryGist struct {
 	Client  *github.Client
 }
 
-func NewShellHistoryGist() ShellHistoryGist {
-	appConfig := config.ReadAppConfig()
+func NewShellHistoryGist() (ShellHistoryGist, error) {
+	appConfig, err := config.ReadAppConfig()
+	if err != nil {
+		return ShellHistoryGist{}, err
+	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: appConfig.GithubToken},
@@ -25,7 +28,7 @@ func NewShellHistoryGist() ShellHistoryGist {
 	return ShellHistoryGist{
 		Context: ctx,
 		Client:  client,
-	}
+	}, nil
 }
 
 func (s ShellHistoryGist) GetShellHistoryGistObject(content string) github.Gist {
