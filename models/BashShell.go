@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,9 @@ func (b BashShell) DecodeHistoryItem(encodedHistoryString string) (HistoryItem, 
 	timeStampStr := splitOnNewLine[0]
 	timeStamp, err := strconv.Atoi(strings.TrimSpace(timeStampStr))
 	if err != nil {
+		fmt.Println("Looks like the timestamp is not present in the bash history for item \"", cmdInHistory, "\". Exiting!")
+		fmt.Println("Refer: https://github.com/BharatKalluri/harmony/blob/master/README.md#note-to-bash-users")
+		os.Exit(1)
 		return HistoryItem{}, err
 	}
 	return HistoryItem{

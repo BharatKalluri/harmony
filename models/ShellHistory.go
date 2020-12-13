@@ -14,7 +14,9 @@ type ShellHistory struct {
 func (s ShellHistory) ConvertToString(shell Shell) string {
 	var shellHistoryStr string
 	for _, el := range s.History {
-		shellHistoryStr = shellHistoryStr + fmt.Sprintf("%s\n", shell.EncodeHistoryItem(el))
+		if len(el.Command) > 0 {
+			shellHistoryStr = shellHistoryStr + fmt.Sprintf("%s\n", shell.EncodeHistoryItem(el))
+		}
 	}
 	return shellHistoryStr
 }
