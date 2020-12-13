@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/bharatkalluri/harmony/config"
 	"github.com/bharatkalluri/harmony/models"
-	"strings"
 )
 
 func GetShellTypeFromStr(shellTypeStr string) models.Shell {
@@ -17,12 +19,9 @@ func GetShellTypeFromStr(shellTypeStr string) models.Shell {
 	}
 }
 
-func main() {
-	appConfig := config.ReadAppConfig()
-
-	shell := GetShellTypeFromStr(appConfig.ShellType)
-
-	shellHistoryGist := models.NewShellHistoryGist()
+func initiateSync(shellType string) {
+	shell := GetShellTypeFromStr(shellType)
+	shellHistoryGist, _ := models.NewShellHistoryGist()
 	onlineHistory, err := shellHistoryGist.GetShellHistoryFromGist()
 	if err != nil {
 		panic("Failed to retrieve history from gist")
@@ -45,4 +44,23 @@ func main() {
 		panic("Writing history to gist has failed!")
 	}
 	fmt.Println("Sync complete!")
+}
+
+func main() {
+	appConfig, err := config.ReadAppConfig()
+	args := os.Args[1:]
+	if len(args) == 0 {
+		if err == config.MissingConfigFileError {
+			fmt.Println("Hey there! I could not find a config file over at ~/.config/harmony/config")
+			fmt.Println("Use `harmony config` to set up the configuration file")
+			fmt.Println("For more detailed explanation, visit https://github.com/BharatKalluri/harmony/blob/master/README.md")
+			os.Exit(0)
+			return
+		}
+		initiateSync(appConfig.ShellType)
+		return
+	}
+	if args[0] == "configure" {
+		config.WriteAppConfig()
+	}
 }

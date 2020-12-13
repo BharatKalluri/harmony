@@ -20,7 +20,11 @@ func (s ShellHistory) ConvertToString(shell Shell) string {
 }
 
 func GetShellHistoryInBytes() ([]byte, error) {
-	appConfig := config.ReadAppConfig()
+	var err error
+	appConfig, err := config.ReadAppConfig()
+	if err != nil {
+		return nil, err
+	}
 	data, err := ioutil.ReadFile(appConfig.ShellHistoryPath)
 	return data, err
 }
@@ -49,8 +53,11 @@ func GetShellHistory(shell Shell) (ShellHistory, error) {
 
 func WriteLocalShellHistory(shellHistory ShellHistory, shell Shell) error {
 	shellHistoryStr := shellHistory.ConvertToString(shell)
-	appConfig := config.ReadAppConfig()
-	err := ioutil.WriteFile(appConfig.ShellHistoryPath, []byte(shellHistoryStr), 0644)
+	appConfig, err := config.ReadAppConfig()
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(appConfig.ShellHistoryPath, []byte(shellHistoryStr), 0644)
 	return err
 }
 
