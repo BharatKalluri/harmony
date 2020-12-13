@@ -1,5 +1,5 @@
 # Harmony
- > A tool to sync shell history across system. Supports bash and zsh!
+ > A tool to sync shell history across systemw. Supports bash and zsh!
 
 ## Installation
 
@@ -10,6 +10,10 @@ go get github.com/BharatKalluri/harmony
 ```
 
 Use `harmony configure` to setup a harmony configuration
+
+> Instructions for how to get a github token can be found
+> [here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line),
+> Make sure you select the "gist" checkbox on the permissions page.
 
 Here is how a sample config file would look
 
@@ -26,10 +30,6 @@ Currently harmony breaks if the history file does not have timestamps (A bug is 
 ```shell script
 echo "HISTTIMEFORMAT=\"%s\"" >> ~/.bashrc
 ```
-
-> Instructions for how to get a github token can be found
-> [here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line),
-> Make sure you select the "gist" checkbox on the permissions page.
 
 ### Run
 
