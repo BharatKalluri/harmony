@@ -25,3 +25,18 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+
+release:
+  github:
+    owner: bharatkalluri
+    name: harmony
+
+  # If set to true, will not auto-publish the release.
+  # Default is false.
+  draft: true
+
+  prerelease: auto
+
+  # You can disable this pipe in order to not upload any artifacts.
+  # Defaults to false.
+  disable: true
