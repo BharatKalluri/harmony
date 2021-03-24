@@ -11,6 +11,7 @@ type BashShell struct{}
 
 func (b BashShell) DecodeHistoryItem(encodedHistoryString string) (HistoryItem, error) {
 	// TODO: this is a very sensitive function and will blow up with a panic if something does not go well. Fix.
+	// TODO: does not even support comments!
 	splitOnNewLine := strings.Split(encodedHistoryString, "\n")
 	cmdInHistory := splitOnNewLine[len(splitOnNewLine)-2]
 	timeStampStr := splitOnNewLine[0]
@@ -32,6 +33,7 @@ func (b BashShell) EncodeHistoryItem(historyItem HistoryItem) string {
 }
 
 func (b BashShell) GetShellHistoryFromBytes(shellHistory []byte) (ShellHistory, error) {
+	// TODO: Need to figure this out, read about HISTTIMEFORMAT
 	historyItemsStrArr := strings.Split(string(shellHistory), "#")
 	var historyItemsArr []HistoryItem
 	for _, el := range historyItemsStrArr {

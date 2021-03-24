@@ -11,6 +11,8 @@ import (
 
 func GetShellTypeFromStr(shellTypeStr string) models.Shell {
 	if strings.Compare(shellTypeStr, "bash") == 0 {
+		fmt.Println("Bash support is coming soon!")
+		os.Exit(1)
 		return models.BashShell{}
 	} else if strings.Compare(shellTypeStr, "zsh") == 0 {
 		return models.ZSHShell{}

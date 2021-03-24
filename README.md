@@ -1,5 +1,5 @@
 # Harmony
- > A tool to sync shell history across systems and across different shells. Supports bash and zsh!
+ > A tool to sync ZSH shell history across systems and across different shells.
 
 ## Installation
 
@@ -24,15 +24,6 @@ SHELL_HISTORY_PATH=/Users/bharatkalluri/.zsh_history
 SHELL_TYPE=zsh
 ```
 
-## Note to bash users
-
-If you use bash as your primary shell, run this so that timestamps are also logged in bash history
-Currently harmony breaks if the any item in the history file does not contain a timestamp. 
-```shell script
-echo "HISTTIMEFORMAT=\"%s\"" >> ~/.bashrc
-```
-I currently do not have any advise on how old history can be imported for harmony. Suggestions are welcome.
-
 ### Run
 
 Harmony uses [secret gists](https://help.github.com/en/enterprise/2.13/user/articles/about-gists) 
@@ -45,3 +36,11 @@ harmony
 ```
 
 and it should auto magically make sure all your shell history is in sync!
+
+
+## Note to bash users
+
+Currently, bash is not supported. Although the code exists in the repo, bash support is
+explicitly disabled as it is not yet ready for production.
+
+Bash support is on the roadmap and will be worked on soon!
