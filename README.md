@@ -7,7 +7,7 @@
 If you have go language installed on your system
 
 ```shell script
-go get github.com/BharatKalluri/harmony
+go get -u github.com/bharatkalluri/harmony
 ```
 
 Use `harmony configure` to setup a harmony configuration
