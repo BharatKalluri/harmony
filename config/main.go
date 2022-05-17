@@ -47,7 +47,7 @@ func WriteAppConfig() {
 			return
 		}
 		githubToken := getInputFromUser("Github token: ")
-		shellType := getInputFromUser("Shell type (zsh or bash): ")
+		shellType := getInputFromUser("Shell type (zsh): ")
 		shellHistoryPath := getInputFromUser("Shell history file path: ")
 		configContents := fmt.Sprintf("GITHUB_TOKEN=%s\nSHELL_HISTORY_PATH=%s\nSHELL_TYPE=%s", githubToken, shellHistoryPath, shellType)
 		err = ioutil.WriteFile(configPath, []byte(configContents), 0644)
